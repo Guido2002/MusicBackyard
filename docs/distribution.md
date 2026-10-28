@@ -7,6 +7,8 @@ The source repository is public at <https://github.com/Guido2002/MusicBackyard>.
 
 The feeds live on the `update-channels` branch. They contain public release metadata, never credentials. App builds have these endpoints configured by default; no server or app login is required.
 
+GitHub's raw-file CDN can briefly retain the preceding feed or a cached 404 after a channel's first publication. Allow several minutes for propagation, then retry the check. The workflow advances the Git reference only after the signed release assets are published.
+
 ## User flow
 
 Open **Meer → Profiel → App-updates** to select **Stabiel** or **Bèta**, manually check, or change automatic wifi downloads. Release builds check at startup, on resume and while open, with a six-hour successful-check interval. Manual checks bypass the interval. Downloads are automatic on wifi by default in production, configurable in the app, and off by default in debug builds. Android always requires system confirmation before installation; nothing installs silently.

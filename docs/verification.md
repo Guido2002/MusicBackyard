@@ -5,7 +5,7 @@ This is a functional local-first MVP and an implementation of the requested foun
 ## Automated and local verification
 
 - Flutter analyzer: clean.
-- Release-specific controller/security tests cover automatic wifi behavior, foreground resume, interval throttling, persisted track choice, APK recovery, source permissions, cancellation, exact GitHub redirect policy, semantic-version validation and Dutch settings. Six Python release-automation tests cover version/track inputs, rollback prevention, isolated feeds and ref-update races.
+- Release-specific controller/security tests cover automatic wifi behavior, foreground resume, interval throttling, persisted track choice, APK recovery, source permissions, cancellation, exact GitHub redirect policy, semantic-version validation and Dutch settings. Eight Python release-automation tests cover version/track inputs, rollback prevention, isolated feeds, ref-update races and tool-independent certificate hashing. APK certificates are hashed from verified DER bytes rather than parsed human-readable signer headings.
 - Unit/widget suite: 100 passing tests covering database create/read/update/delete and reopen, schema v1→v2 migration, transactional rollback, search/sort, structure persistence, transposition and slash chords, capo math, anchor editing, ChordPro/directive roundtrip, URL validation, update state/manifest policy, HTTP failures/redirect rejection, download cancellation/cleanup/integrity, portable attachment backups and malformed restore rejection, long PDF pagination, all four templates, A5 landscape, onboarding, creating a song, tablet navigation and 1.8× text scaling.
 - Android API 37 emulator integration (four passing tests in total): create a song through the real UI, write lyrics, insert a slash chord, transpose, save, close the native SQLite connection, reopen it and verify the persisted content. An arbitrary APK path is rejected by the native installer gate.
 - Android PDFium integration: generate a PDF, reload and extract its text, compare chord/word x coordinates within one point, and render the page to pixels.
@@ -14,11 +14,21 @@ This is a functional local-first MVP and an implementation of the requested foun
 - Android document checks cover all four PDF content presets and confirm absent content stays absent. The editor arrangement is checked through the actual performance and PDF export routes.
 - The master prompt's real-user timing/usability acceptance criteria have not been validated with musicians.
 
-## Production update gates still requiring release infrastructure/devices
+## Live Android release verification
+
+The public stable release **1.1.1 (100006)** was built, production-signed, verified and published by GitHub Actions. The live stable feed and its complete APK download passed the app repository's HTTPS redirect, size and SHA-256 checks.
+
+On the Android API 37 emulator, a production-signed installation **1.1.1 (100001)** detected the public stable feed and automatically downloaded its APK over wifi. The app's cryptographic/package/version checks passed. The normal source permission screen, Android update confirmation and Play Protect scan were followed. Android then reported **100006** installed. The existing song **Updatecontrole** and its full lyric **Bewaar dit eigen nummer tijdens de update.** remained present after replacement.
+
+Evidence: [automatic download](screenshots/update-download.png), [system confirmation](screenshots/update-confirmation.png), [song retained after update](screenshots/update-retained-song.png). These tests used the emulator; the connected physical phone was not modified.
+
+The public beta release **1.1.2-beta.1 (100007)** also passed its GitHub release workflow and the full live download/redirect/size/SHA-256 check. With the beta preference persisted, restarting the stable app automatically detected and downloaded beta without pressing the manual check/download buttons. Cancelling Android's installer returned to the app and **Opnieuw proberen → Installeren** reopened the installer successfully. After normal confirmation/Play Protect scanning, Android reported **100007 / 1.1.2-beta.1** installed, and the song and full lyric were retained again. Switching back to stable correctly offered no downgrade to **100006** and explained that a newer stable build would be offered later. Evidence: [automatic beta download completed](screenshots/update-beta-ready.png), [stable selection on the newer installed beta](screenshots/update-channel-no-downgrade.png).
+
+## Production update gates still requiring physical devices/store accounts
 
 The Android release infrastructure now includes public stable/beta feeds, encrypted Actions signing secrets, a durable production key and tagged/manual release automation. See `distribution.md` for endpoints, key recovery, release commands and the first-install transition from old debug builds. App Store/Play Store publication still requires store accounts.
 
-Before production rollout, run the entire two-version update flow on a real supported Android device, signed with the real release key, and verify user data after replacement. Also exercise:
+The complete direct-APK success flow above passed on the emulator. Before broad rollout, repeat it on real supported Android devices and exercise:
 
 1. No connectivity, network interruption, retry, insufficient storage, concurrent manual checks and cancellation during a real download.
 2. Wrong package, older/wrong version code, corrupted signature, wrong signer certificate, and a correct signed APK.

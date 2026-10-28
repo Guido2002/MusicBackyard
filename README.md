@@ -44,4 +44,6 @@ flutter build apk --debug --flavor play
 
 The integration test uses its own uniquely named song in the emulator library and removes it after successful validation. Avoid running it on a personal production installation. Release builds require your own signing configuration; they never silently use a debug key.
 
+`flutter pub get` may report newer packages incompatible with dependency constraints. This is an informational notice; the tested dependency versions are recorded in `pubspec.lock`. Use `flutter pub outdated` to distinguish updates allowed by the current constraints from new major versions or packages pinned by Flutter. Validate dependency upgrades with the checks above before releasing them.
+
 See [architecture](docs/architecture.md), [verification and remaining scope](docs/verification.md), and [distribution](docs/distribution.md). The active editor arrangement is preserved in performance and export. Generated example songs are not inserted into users' libraries.
