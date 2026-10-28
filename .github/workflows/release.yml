@@ -70,9 +70,9 @@ jobs:
         run: |
           flutter build apk --release --flavor direct --build-name="$RELEASE_VERSION" --build-number="$RELEASE_BUILD" --dart-define="UPDATE_REPOSITORY=$UPDATE_REPOSITORY" --dart-define="RELEASE_TRACK=$RELEASE_TRACK" --dart-define=UPDATE_AUTO_DOWNLOAD_WIFI=true
           cp build/app/outputs/flutter-apk/app-direct-release.apk "build/release/$RELEASE_APK"
+          python3 tool/verify_release.py
           flutter build appbundle --release --flavor play --build-name="$RELEASE_VERSION" --build-number="$RELEASE_BUILD"
           cp build/app/outputs/bundle/playRelease/app-play-release.aab build/release/MusicBackyard-play.aab
-          python3 tool/verify_release.py
       - name: Remove runner signing files
         if: always()
         run: python3 tool/ci_signing.py cleanup

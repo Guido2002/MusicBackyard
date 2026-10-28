@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """Verify actual APK identity/version/signature before publishing its manifest."""
 import hashlib
+import base64
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
 import sys
+
+def certificate_fingerprints(output):
+    # Human-readable signer headings vary between Android build-tools versions.
+    # Hash the exported DER certificates after apksigner has verified the APK.
+    certificates=re.findall(r'-----BEGIN CERTIFICATE-----\s*([A-Za-z0-9+/=\s]+?)\s*-----END CERTIFICATE-----',output)
+    if not certificates: raise ValueError(f'APK verifier returned no signer certificates: {output}')
+    return {hashlib.sha256(base64.b64decode(''.join(value.split()),validate=True)).hexdigest() for value in certificates}
 
 def android_tool(name):
     root=Path(os.environ.get('ANDROID_HOME') or os.environ.get('ANDROID_SDK_ROOT') or Path.home()/'Library/Android/sdk')/'build-tools'
@@ -21,8 +29,8 @@ def verify(apk,metadata):
     if not identity or identity[1]!='nl.musicbackyard.music_backyard' or int(identity[2])!=metadata['buildNumber'] or identity[3]!=metadata['version']: raise ValueError('Actual APK package/version differs from release metadata')
     java_env=dict(os.environ)
     if not java_env.get('JAVA_HOME') and Path('/opt/homebrew/opt/openjdk@17').is_dir():java_env['JAVA_HOME']='/opt/homebrew/opt/openjdk@17'
-    signed=subprocess.check_output([android_tool('apksigner'),'verify','--verbose','--print-certs',str(apk)],text=True,env=java_env)
-    fingerprints=[value.lower() for value in re.findall(r'Signer #\d+ certificate SHA-256 digest:\s*([a-fA-F0-9]+)',signed)]
+    signed=subprocess.check_output([android_tool('apksigner'),'verify','--verbose','--print-certs','--print-certs-pem',str(apk)],text=True,env=java_env)
+    fingerprints=certificate_fingerprints(signed)
     expected=Path('config/android-release-certificate.sha256').read_text().strip().lower()
     if set(fingerprints)!={expected}: raise ValueError(f'Production certificate mismatch: expected {expected}; verified APK signers {fingerprints}')
     with apk.open('rb') as source:

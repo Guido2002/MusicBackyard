@@ -6,6 +6,9 @@ from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'tool'))
 from prepare_release import metadata
 from publish_release import advance_feed
+from verify_release import certificate_fingerprints
+import base64
+import hashlib
 
 class FakeGitHub:
     def __init__(self):
@@ -34,6 +37,14 @@ class FakeGitHub:
         raise AssertionError(path)
 
 class ReleasePipelineTests(unittest.TestCase):
+    def test_certificate_hash_uses_exported_bytes_independent_of_signer_headings(self):
+        certificate=b'public certificate test fixture'
+        pem='-----BEGIN CERTIFICATE-----\n'+base64.b64encode(certificate).decode()+'\n-----END CERTIFICATE-----'
+        for heading in ['Signer #1', 'Signer (minSdkVersion=24, maxSdkVersion=2147483647)']:
+            with self.subTest(heading=heading):
+                self.assertEqual(certificate_fingerprints(heading+'\n'+pem+'\n'+pem),{hashlib.sha256(certificate).hexdigest()})
+    def test_missing_exported_certificate_fails_closed(self):
+        with self.assertRaises(ValueError):certificate_fingerprints('Verifies\nSigner #1 certificate SHA-256 digest: abc')
     def env(self,**changes):
         return {'GITHUB_REF':'refs/heads/main','GITHUB_REPOSITORY':'Guido2002/MusicBackyard','GITHUB_RUN_NUMBER':'5','GITHUB_SHA':'a'*40,'RELEASE_VERSION':'1.1.1','RELEASE_TRACK':'stable',**changes}
     def test_manual_stable_version_and_global_build(self):
