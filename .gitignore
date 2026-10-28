@@ -124,6 +124,7 @@ app.*.symbols
 
 # Generated QA and artifact scratch files
 /tmp/
+/output/
 
 # Private release signing material and local admin tooling
 /.release/

@@ -25,12 +25,12 @@ For a particular emulator, add `-d emulator-5554`. Use `--flavor play` for Googl
 - Dark performance mode with adjustable font, chords, auto-scroll, speed, previous/next, saved position, screen wake lock and configurable keyboard HID pedal navigation.
 - Offline PDF generation using bundled OFL fonts, separate lyrics/chords/tabs content modes, four templates, A4/A5, orientation, margins, text/spacing controls, page numbers, cover/contents for bandbooks, headers/footers, notes/tabs, preview, file save, sharing and printing.
 - Portable library backups including attachment bytes; validated staged restore and transactional database replacement.
-- Stable/beta release channels, automatic foreground/resume checks and optional verified wifi downloads. Tagged/manual GitHub Actions releases sign and publish APKs and advance channel feeds. Separate direct-APK/Play/App Store update routes. Direct downloads have explicit HTTPS/host policy, cancellation/progress, size/hash verification, cryptographic APK signature verification, package/version/signer checks and user-confirmed Android installation. See [distribution](docs/distribution.md).
+- Stable/beta release channels, automatic foreground/resume checks and optional verified wifi downloads. Every feature/fix push to main automatically versions, tests, signs and publishes a stable APK and advances its update feed. Tagged/manual beta releases remain available. Separate direct-APK/Play/App Store update routes. Direct downloads have explicit HTTPS/host policy, cancellation/progress, size/hash verification, cryptographic APK signature verification, package/version/signer checks and user-confirmed Android installation. See [distribution](docs/distribution.md).
 - A generated custom launcher icon installed in Android and iOS assets. See [branding](docs/branding.md).
 
 ## Releases
 
-Install production APKs from [GitHub Releases](https://github.com/Guido2002/MusicBackyard/releases). Choose stable/beta in **Meer → Profiel → App-updates**. See [release workflow and signing](docs/distribution.md) before publishing.
+Install production APKs from [GitHub Releases](https://github.com/Guido2002/MusicBackyard/releases). New feature/fix pushes to `main` automatically create a versioned stable release. Use `feat:` / `fix:` commit messages for automatic semantic versioning. Choose stable/beta in **Meer → Profiel → App-updates**. See [release workflow and signing](docs/distribution.md) before publishing.
 
 ## Validate
 

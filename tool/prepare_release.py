@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+from automatic_release import automatic_plan
 
 VERSION=re.compile(r'^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?$')
 
@@ -26,11 +27,19 @@ def metadata(env):
     return {'version':version,'track':track,'buildNumber':100000+number,'tag':f'v{version}','repository':repository,'apkName':f'MusicBackyard-{version}.apk','commit':env.get('GITHUB_SHA','')}
 
 def main():
-    data=metadata(os.environ)
+    env=dict(os.environ)
+    automatic=env.get('GITHUB_EVENT_NAME')=='push' and env.get('GITHUB_REF')=='refs/heads/main'
+    planned=None
+    if automatic:
+        initial=re.search(r'^version:\s*(\d+\.\d+\.\d+)',Path('pubspec.yaml').read_text(),re.MULTILINE)
+        if not initial: raise SystemExit('Missing pubspec version')
+        planned=automatic_plan(env['GITHUB_SHA'],initial[1])
+        env.update(RELEASE_VERSION=planned['version'],RELEASE_TRACK=planned['track'])
+    data=metadata(env)
     subprocess.run(['git','merge-base','--is-ancestor',data['commit'],'origin/main'],check=True)
     notes=Path('docs/releases')/f"{data['version']}.txt"
-    if not notes.is_file(): raise SystemExit(f'Missing Dutch release notes: {notes}')
-    data['releaseNotes']=[v.strip() for v in notes.read_text().splitlines() if v.strip()]
+    if not notes.is_file() and not automatic: raise SystemExit(f'Missing Dutch release notes: {notes}')
+    data['releaseNotes']=[v.strip() for v in notes.read_text().splitlines() if v.strip()] if notes.is_file() else planned['releaseNotes']
     if not data['releaseNotes']: raise SystemExit('Release notes cannot be empty')
     destination=Path('build/release');destination.mkdir(parents=True,exist_ok=True)
     (destination/'metadata.json').write_text(json.dumps(data,indent=2)+'\n')

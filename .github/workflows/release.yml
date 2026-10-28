@@ -1,7 +1,17 @@
 name: Android releases
 on:
   push:
+    branches: [main]
     tags: ['v*']
+    paths:
+      - 'lib/**'
+      - 'android/**'
+      - 'ios/**'
+      - 'assets/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'tool/**'
+      - '.github/workflows/release.yml'
   workflow_dispatch:
     inputs:
       version:
@@ -20,6 +30,7 @@ permissions:
 concurrency:
   group: musicbackyard-releases
   cancel-in-progress: false
+  queue: max
 jobs:
   release:
     if: github.repository == 'Guido2002/MusicBackyard'
@@ -36,6 +47,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
+          cache-dependency-path: 'android/**/*.gradle*'
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           flutter-version: '3.47.8'
@@ -50,6 +63,7 @@ jobs:
       - name: Validate source
         run: |
           flutter pub get
+          dart format --output=none --set-exit-if-changed lib test integration_test tool
           flutter analyze
           flutter test
           python3 -m unittest discover -s test/release

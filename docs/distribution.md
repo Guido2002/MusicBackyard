@@ -17,20 +17,37 @@ Switching channels never downgrades an installed version. After switching from a
 
 Initial installation: use the signed APK from GitHub Releases. Earlier debug APKs used a different certificate and cannot be overwritten by this production key. Back up music through **Meer → Back-up opslaan** before replacing such an installation; restore the backup after installing the production APK. Do not delete a debug installation until its backup is safely saved. Future production releases retain the same application ID and certificate and update in place.
 
-## Publish a release
+## Automatic stable releases
+
+Every push to `main` that changes app source, Android/iOS configuration, assets, dependencies, release tooling or the release workflow runs the Android releases pipeline. Documentation and review artifacts alone do not trigger it. One push produces one stable release containing its completed feature/fix commits.
+
+The version is derived from the highest stable `vX.Y.Z` tag, ignoring beta tags:
+
+- `fix(scope): description` and ordinary app commits increment the patch number.
+- `feat(scope): description` increments the minor version and resets the patch number.
+- `feat!:` / `fix!:` or a `BREAKING CHANGE:` footer increments the major version.
+- When a push contains multiple commits, the highest required increment is applied once.
+
+Release notes come from `docs/releases/<version>.txt` when present; otherwise feature/fix commit descriptions provide them automatically. The release build uses the computed version directly, without creating a version-bump commit on `main`. Android build numbers continue to share the same sequence across automatic/manual/beta runs.
+
+The workflow checks formatting, analyzes, tests, signs, verifies the actual APK, publishes the GitHub Release and Git tag, and then advances the stable feed. No separate tag push or manual dispatch is needed for a feature/fix. Failed checks stop publication. Completed releases are immutable; deliberately rerunning an already published automatic run chooses the next stable version.
+
+Concurrent releases wait in order using `queue: max`, rather than replacing an older pending feature/fix run. GitHub supports up to 100 pending runs per concurrency group. See [GitHub concurrency documentation](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency). Every completed feature/fix should be validated, committed and pushed; the repository's `AGENTS.md` records this working agreement.
+
+## Manual/beta releases
 
 Use **Actions → Android releases → Run workflow** on `main`:
 
 1. Add Dutch release notes at `docs/releases/<version>.txt` and push the reviewed code to `main`.
-2. Choose a unique semantic version, e.g. `1.1.2` for stable or `1.1.3-beta.1` for beta.
+2. Choose a unique semantic version, e.g. `1.1.3` for stable or `1.1.3-beta.1` for beta.
 3. Choose the matching track. Stable versions must not have a prerelease suffix; beta versions must have one.
 4. Run the workflow. It analyzes/tests, signs a direct APK and a Play bundle, verifies actual APK identity/version/certificate/SHA-256, stages assets in a draft release, publishes, and advances only the selected feed atomically.
 
 Alternatively push a version tag on a commit reachable from `main`:
 
 ```sh
-git tag v1.1.2
-git push origin v1.1.2
+git tag v1.1.3-beta.1
+git push origin v1.1.3-beta.1
 ```
 
 Tag suffixes determine the track. Android build numbers are `100000 + GITHUB_RUN_NUMBER` for this single release workflow, so stable and beta share a sequence independent of version names. Existing published builds cannot be replaced with changed content. Feeds refuse lower build numbers and use fast-forward updates rather than forced pushes. Concurrent release jobs are serialized.
