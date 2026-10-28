@@ -1,0 +1,3 @@
+Akkoorden blijven boven de bijbehorende songtekst staan; woorden zonder akkoord schuiven niet meer omhoog.
+Brede akkoorden krijgen extra tussenruimte en lange tekstregels kunnen veilig over pagina's doorlopen.
+Nieuwe features en fixes op main krijgen voortaan automatisch een geteste en ondertekende release.

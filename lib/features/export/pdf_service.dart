@@ -137,13 +137,23 @@ class MusicPdfService {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             mainAxisSize: pw.MainAxisSize.min,
             children: [
-              pw.Text(
-                chords.isEmpty ? ' ' : chords,
-                style: pw.TextStyle(
-                  font: bold,
-                  fontSize: fontSize * .85,
-                  color: color,
-                ),
+              // PDF Text trims a space-only line to zero height. Reserve the
+              // same chord row above every fragment, including unanchored words.
+              pw.SizedBox(
+                height: fontSize * 1.3,
+                child: chords.isEmpty
+                    ? null
+                    : pw.Padding(
+                        padding: pw.EdgeInsets.only(right: fontSize * .3),
+                        child: pw.Text(
+                          chords,
+                          style: pw.TextStyle(
+                            font: bold,
+                            fontSize: fontSize * .85,
+                            color: color,
+                          ),
+                        ),
+                      ),
               ),
               pw.Text(
                 line.text.substring(start, end),
@@ -271,18 +281,13 @@ class MusicPdfService {
             ),
           ),
         );
-        // Keep each heading with the first lyric line, then allow long sections to span pages.
-        if (lines.isNotEmpty) {
-          body.add(
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [heading, lineWidget(lines.first)],
-            ),
-          );
-          body.addAll(lines.skip(1).map(lineWidget));
-        } else {
-          body.add(heading);
-        }
+        // Keep room for the heading and first visual row, without wrapping a
+        // potentially page-long lyric in a Column that cannot split its Wrap.
+        body.add(
+          pw.NewPage(freeSpace: 24 + fontSize * (options.lineSpacing + 3)),
+        );
+        body.add(heading);
+        body.addAll(lines.map(lineWidget));
       }
       if (options.content == PdfContent.tabsOnly ||
           options.content == PdfContent.lyricsAndChords && options.tabs) {

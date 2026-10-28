@@ -5,14 +5,22 @@ This is a functional local-first MVP and an implementation of the requested foun
 ## Automated and local verification
 
 - Flutter analyzer: clean.
-- Release-specific controller/security tests cover automatic wifi behavior, foreground resume, interval throttling, persisted track choice, APK recovery, source permissions, cancellation, exact GitHub redirect policy, semantic-version validation and Dutch settings. Eight Python release-automation tests cover version/track inputs, rollback prevention, isolated feeds, ref-update races and tool-independent certificate hashing. APK certificates are hashed from verified DER bytes rather than parsed human-readable signer headings.
-- Unit/widget suite: 100 passing tests covering database create/read/update/delete and reopen, schema v1→v2 migration, transactional rollback, search/sort, structure persistence, transposition and slash chords, capo math, anchor editing, ChordPro/directive roundtrip, URL validation, update state/manifest policy, HTTP failures/redirect rejection, download cancellation/cleanup/integrity, portable attachment backups and malformed restore rejection, long PDF pagination, all four templates, A5 landscape, onboarding, creating a song, tablet navigation and 1.8× text scaling.
+- Release-specific controller/security tests cover automatic wifi behavior, foreground resume, interval throttling, persisted track choice, APK recovery, source permissions, cancellation, exact GitHub redirect policy, semantic-version validation and Dutch settings. Sixteen Python release-automation tests cover version/track inputs, rollback prevention, isolated feeds, ref-update races, tool-independent certificate hashing and automatic semantic versioning/notes, including a real temporary Git history. APK certificates are hashed from verified DER bytes rather than parsed human-readable signer headings.
+- Unit/widget suite: 112 passing tests covering database create/read/update/delete and reopen, schema v1→v2 migration, transactional rollback, search/sort, structure persistence, transposition and slash chords, capo math, anchor editing, ChordPro/directive roundtrip, URL validation, update state/manifest policy, HTTP failures/redirect rejection, download cancellation/cleanup/integrity, portable attachment backups and malformed restore rejection, long PDF pagination, all four templates, A5 landscape, onboarding, creating a song, tablet navigation and 1.8× text scaling.
 - Android API 37 emulator integration (four passing tests in total): create a song through the real UI, write lyrics, insert a slash chord, transpose, save, close the native SQLite connection, reopen it and verify the persisted content. An arbitrary APK path is rejected by the native installer gate.
 - Android PDFium integration: generate a PDF, reload and extract its text, compare chord/word x coordinates within one point, and render the page to pixels.
 - Direct and Play Android debug APKs build successfully. The ordinary direct app launches on the Android emulator. The custom icon and onboarding were visually checked.
 - Added coverage: folder rename/reparent/delete, atomic rollback and concurrent-cycle rejection; clipboard tab roundtrips and malformed input, paste append/replace behavior, tuning and technique validation; capo changes across arrangements and cancellation; snapshot selection for an active arrangement.
 - Android document checks cover all four PDF content presets and confirm absent content stays absent. The editor arrangement is checked through the actual performance and PDF export routes.
 - The master prompt's real-user timing/usability acceptance criteria have not been validated with musicians.
+
+## PDF chord alignment revision
+
+The export reserves a fixed-height chord row above every lyric fragment. A PDF text widget containing only spaces collapses to zero height; the previous placeholder therefore raised unanchored words into the chord row. Chord labels now also retain a small horizontal gap when their anchored lyric fragments are shorter than the labels.
+
+Twelve new PDFium tests inspect actual PDF character positions: common lyric baselines, chords above their anchored words, all four styles, lines without a starting chord, A5 portrait/landscape, small/large fonts, wrapping and page breaks, and adjacent wide chord labels. The baseline regression fails on the original implementation by approximately 13.9 points and passes with this fix. The first logical lyric line can now span pages without being trapped together with its heading in a non-splitting layout.
+
+The two-page review export was rendered and both pages visually inspected. Analyzer is clean and the full 112-test Flutter suite passes. This revision is in the working tree; it has not yet been published as an updated Android release.
 
 ## Live Android release verification
 
