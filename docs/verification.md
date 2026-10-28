@@ -20,7 +20,18 @@ The export reserves a fixed-height chord row above every lyric fragment. A PDF t
 
 Twelve new PDFium tests inspect actual PDF character positions: common lyric baselines, chords above their anchored words, all four styles, lines without a starting chord, A5 portrait/landscape, small/large fonts, wrapping and page breaks, and adjacent wide chord labels. The baseline regression fails on the original implementation by approximately 13.9 points and passes with this fix. The first logical lyric line can now span pages without being trapped together with its heading in a non-splitting layout.
 
-The two-page review export was rendered and both pages visually inspected. Analyzer is clean and the full 112-test Flutter suite passes. This revision is in the working tree; it has not yet been published as an updated Android release.
+The two-page review export was rendered and both pages visually inspected. Analyzer is clean and the full 112-test Flutter suite passes. This revision was published automatically as stable **1.1.2 (100009)** by the push-triggered Android release workflow. The source push, version selection, signing, Git tag, GitHub Release and stable-feed update completed without a manual dispatch.
+
+## Automatic push release verification
+
+Two push-triggered stable releases completed successfully without manually creating a tag or dispatching a workflow:
+
+- **1.1.2 (100009)** published the PDF chord alignment fix: [release workflow](https://github.com/Guido2002/MusicBackyard/actions/runs/40729927765).
+- **1.1.3 (101001)** published the build-number retry fix, with automatically generated release notes and the new run/attempt sequence: [release workflow](https://github.com/Guido2002/MusicBackyard/actions/runs/40731433731).
+
+The second run waited behind the first, fetched its newly published stable tag and selected the next patch version. Both workflows passed the full Flutter and Python release tests before signing/publishing. Fresh Linux runners prepare the locked host native assets with `dart run tool/prepare_test_environment.dart`, so the twelve PDFium regression cases also run there.
+
+The public stable feed returned **1.1.3 (101001)**. A complete APK download using `tool/check_update_channel.dart stable --download` passed the app's exact HTTPS redirect policy, byte count and SHA-256 checks. Some initial downloads timed out and a retry completed successfully; the final ordinary checker completed in about 19 seconds. No host-policy or TLS exceptions were introduced.
 
 ## Live Android release verification
 
