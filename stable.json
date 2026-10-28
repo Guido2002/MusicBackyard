@@ -1,16 +1,14 @@
 {
-  "version": "1.1.2",
-  "buildNumber": 100009,
+  "version": "1.1.3",
+  "buildNumber": 101001,
   "platform": "android",
   "channel": "direct",
   "track": "stable",
-  "downloadUrl": "https://github.com/Guido2002/MusicBackyard/releases/download/v1.1.2/MusicBackyard-1.1.2.apk",
-  "sha256": "c7d294b481628200aca9ec3a8bb555db8724b5c6899e5ea69ce395372ee9894d",
+  "downloadUrl": "https://github.com/Guido2002/MusicBackyard/releases/download/v1.1.3/MusicBackyard-1.1.3.apk",
+  "sha256": "a165ddc22dfac4f7495aadcdadb7de410e391273758c268a18dd7057db8cef87",
   "sizeBytes": 95011773,
   "releaseNotes": [
-    "Akkoorden blijven boven de bijbehorende songtekst staan; woorden zonder akkoord schuiven niet meer omhoog.",
-    "Brede akkoorden krijgen extra tussenruimte en lange tekstregels kunnen veilig over pagina's doorlopen.",
-    "Nieuwe features en fixes op main krijgen voortaan automatisch een geteste en ondertekende release."
+    "Verbetering: houd buildnummers uniek bij herhaalde builds"
   ],
   "mandatory": false
 }
