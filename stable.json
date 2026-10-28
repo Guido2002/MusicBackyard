@@ -1,0 +1,17 @@
+{
+  "version": "1.1.1",
+  "buildNumber": 100006,
+  "platform": "android",
+  "channel": "direct",
+  "track": "stable",
+  "downloadUrl": "https://github.com/Guido2002/MusicBackyard/releases/download/v1.1.1/MusicBackyard-1.1.1.apk",
+  "sha256": "993230fd7590340c8274049092b17a183beda63c9122767f3b48bb313281f9c1",
+  "sizeBytes": 95011769,
+  "releaseNotes": [
+    "Automatische updatecontrole bij starten, hervatten en tijdens gebruik.",
+    "Stabiele releases en bètaversies zijn als afzonderlijke kanalen beschikbaar.",
+    "Updates worden naar keuze automatisch via wifi gedownload en gecontroleerd.",
+    "Android bevestigt de installatie; je lokale muziekbibliotheek blijft behouden."
+  ],
+  "mandatory": false
+}
