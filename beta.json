@@ -1,0 +1,16 @@
+{
+  "version": "1.1.2-beta.1",
+  "buildNumber": 100007,
+  "platform": "android",
+  "channel": "direct",
+  "track": "beta",
+  "downloadUrl": "https://github.com/Guido2002/MusicBackyard/releases/download/v1.1.2-beta.1/MusicBackyard-1.1.2-beta.1.apk",
+  "sha256": "aebccdebe2e48821b93cbd0a6229fc9725fb2820d4524f773c31f83676649f94",
+  "sizeBytes": 95011777,
+  "releaseNotes": [
+    "Eerste bètakanaal voor de automatische updateflow.",
+    "Bevat dezelfde muziekfuncties als de stabiele versie 1.1.1.",
+    "Test de kanaalkeuze, downloadcontrole en Android-installatie met behoud van je bibliotheek."
+  ],
+  "mandatory": false
+}
