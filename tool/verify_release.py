@@ -22,9 +22,9 @@ def verify(apk,metadata):
     java_env=dict(os.environ)
     if not java_env.get('JAVA_HOME') and Path('/opt/homebrew/opt/openjdk@17').is_dir():java_env['JAVA_HOME']='/opt/homebrew/opt/openjdk@17'
     signed=subprocess.check_output([android_tool('apksigner'),'verify','--verbose','--print-certs',str(apk)],text=True,env=java_env)
-    fingerprints=re.findall(r'Signer #\d+ certificate SHA-256 digest: ([a-fA-F0-9]+)',signed)
+    fingerprints=[value.lower() for value in re.findall(r'Signer #\d+ certificate SHA-256 digest:\s*([a-fA-F0-9]+)',signed)]
     expected=Path('config/android-release-certificate.sha256').read_text().strip().lower()
-    if fingerprints!=[expected]: raise ValueError('APK is not signed by the configured production certificate')
+    if set(fingerprints)!={expected}: raise ValueError(f'Production certificate mismatch: expected {expected}; verified APK signers {fingerprints}')
     with apk.open('rb') as source:
         digest=hashlib.sha256()
         for chunk in iter(lambda:source.read(1048576),b''): digest.update(chunk)
