@@ -23,8 +23,10 @@ def metadata(env):
     repository=env.get('GITHUB_REPOSITORY','')
     if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+',repository): raise ValueError('Invalid repository')
     number=int(env.get('GITHUB_RUN_NUMBER','0'))
-    if not 0<number<2000000000: raise ValueError('Invalid workflow run number')
-    return {'version':version,'track':track,'buildNumber':100000+number,'tag':f'v{version}','repository':repository,'apkName':f'MusicBackyard-{version}.apk','commit':env.get('GITHUB_SHA','')}
+    attempt=int(env.get('GITHUB_RUN_ATTEMPT','1'))
+    build=100000+number*100+attempt
+    if number<=0 or not 0<attempt<100 or build>2147483647: raise ValueError('Invalid workflow run/attempt number')
+    return {'version':version,'track':track,'buildNumber':build,'tag':f'v{version}','repository':repository,'apkName':f'MusicBackyard-{version}.apk','commit':env.get('GITHUB_SHA','')}
 
 def main():
     env=dict(os.environ)

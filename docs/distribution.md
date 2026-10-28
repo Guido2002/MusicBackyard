@@ -50,7 +50,7 @@ git tag v1.1.3-beta.1
 git push origin v1.1.3-beta.1
 ```
 
-Tag suffixes determine the track. Android build numbers are `100000 + GITHUB_RUN_NUMBER` for this single release workflow, so stable and beta share a sequence independent of version names. Existing published builds cannot be replaced with changed content. Feeds refuse lower build numbers and use fast-forward updates rather than forced pushes. Concurrent release jobs are serialized.
+Tag suffixes determine the track. New Android build numbers are `100000 + 100 × GITHUB_RUN_NUMBER + GITHUB_RUN_ATTEMPT` for this single release workflow. Stable and beta share a sequence independent of version names; up to 99 attempts per run have their own increasing number, and every later run remains higher. The old releases used `100000 + GITHUB_RUN_NUMBER`; the new sequence remains above those existing builds. Existing published builds cannot be replaced with changed content. Feeds refuse lower build numbers and use fast-forward updates rather than forced pushes. Concurrent release jobs are serialized.
 
 The direct APK and manifest appear in GitHub Releases. Signed Play AABs are retained as workflow artifacts for 30 days and can be uploaded to the appropriate Google Play test/production track. There is no automatic Play Store publication without a configured Play Console account/service identity. The app uses the official Play in-app update API for Play-owned installs and never replaces them through the APK flow.
 

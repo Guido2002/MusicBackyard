@@ -48,7 +48,13 @@ class ReleasePipelineTests(unittest.TestCase):
     def env(self,**changes):
         return {'GITHUB_REF':'refs/heads/main','GITHUB_REPOSITORY':'Guido2002/MusicBackyard','GITHUB_RUN_NUMBER':'5','GITHUB_SHA':'a'*40,'RELEASE_VERSION':'1.1.1','RELEASE_TRACK':'stable',**changes}
     def test_manual_stable_version_and_global_build(self):
-        value=metadata(self.env());self.assertEqual(value['version'],'1.1.1');self.assertEqual(value['buildNumber'],100005)
+        value=metadata(self.env());self.assertEqual(value['version'],'1.1.1');self.assertEqual(value['buildNumber'],100501)
+    def test_run_attempts_and_later_runs_have_increasing_android_builds(self):
+        builds=[metadata(self.env(GITHUB_RUN_NUMBER=run,GITHUB_RUN_ATTEMPT=attempt))['buildNumber'] for run,attempt in [('5','1'),('5','2'),('5','99'),('6','1')]]
+        self.assertEqual(builds,[100501,100502,100599,100601])
+        for values in [{'GITHUB_RUN_ATTEMPT':'0'},{'GITHUB_RUN_ATTEMPT':'100'},{'GITHUB_RUN_NUMBER':'21474837'}]:
+            with self.subTest(values=values):
+                with self.assertRaises(ValueError): metadata(self.env(**values))
     def test_beta_tag_determines_track(self):
         value=metadata(self.env(GITHUB_REF='refs/tags/v1.2.0-beta.1'));self.assertEqual(value['track'],'beta');self.assertEqual(value['version'],'1.2.0-beta.1')
     def test_untrusted_versions_tracks_and_refs_are_rejected(self):
