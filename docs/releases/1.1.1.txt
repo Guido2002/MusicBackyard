@@ -1,0 +1,4 @@
+Automatische updatecontrole bij starten, hervatten en tijdens gebruik.
+Stabiele releases en bètaversies zijn als afzonderlijke kanalen beschikbaar.
+Updates worden naar keuze automatisch via wifi gedownload en gecontroleerd.
+Android bevestigt de installatie; je lokale muziekbibliotheek blijft behouden.

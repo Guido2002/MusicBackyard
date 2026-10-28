@@ -1,0 +1,89 @@
+name: Android releases
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Semantic version (beta must include -beta.N)'
+        required: true
+        default: '1.1.1'
+        type: string
+      track:
+        description: 'Release channel'
+        required: true
+        default: stable
+        type: choice
+        options: [stable, beta]
+permissions:
+  contents: read
+concurrency:
+  group: musicbackyard-releases
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.repository == 'Guido2002/MusicBackyard'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: '3.47.8'
+          channel: stable
+          cache: true
+      - name: Resolve version and globally increasing Android build
+        id: release
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_TRACK: ${{ inputs.track }}
+        run: python3 tool/prepare_release.py
+      - name: Validate source
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test
+          python3 -m unittest discover -s test/release
+      - name: Configure production signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: python3 tool/ci_signing.py
+      - name: Build signed APK and Play bundle
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_BUILD: ${{ steps.release.outputs.buildNumber }}
+          RELEASE_TRACK: ${{ steps.release.outputs.track }}
+          RELEASE_APK: ${{ steps.release.outputs.apkName }}
+          UPDATE_REPOSITORY: ${{ github.repository }}
+        run: |
+          flutter build apk --release --flavor direct --build-name="$RELEASE_VERSION" --build-number="$RELEASE_BUILD" --dart-define="UPDATE_REPOSITORY=$UPDATE_REPOSITORY" --dart-define="RELEASE_TRACK=$RELEASE_TRACK" --dart-define=UPDATE_AUTO_DOWNLOAD_WIFI=true
+          cp build/app/outputs/flutter-apk/app-direct-release.apk "build/release/$RELEASE_APK"
+          flutter build appbundle --release --flavor play --build-name="$RELEASE_VERSION" --build-number="$RELEASE_BUILD"
+          cp build/app/outputs/bundle/playRelease/app-play-release.aab build/release/MusicBackyard-play.aab
+          python3 tool/verify_release.py
+      - name: Remove runner signing files
+        if: always()
+        run: python3 tool/ci_signing.py cleanup
+      - name: Keep signed build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: android-${{ steps.release.outputs.version }}
+          path: build/release/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish immutable release and advance channel
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tool/publish_release.py

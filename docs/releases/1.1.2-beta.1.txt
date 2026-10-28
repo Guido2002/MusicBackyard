@@ -1,0 +1,3 @@
+Eerste bètakanaal voor de automatische updateflow.
+Bevat dezelfde muziekfuncties als de stabiele versie 1.1.1.
+Test de kanaalkeuze, downloadcontrole en Android-installatie met behoud van je bibliotheek.

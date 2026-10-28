@@ -1,0 +1,5 @@
+Mappen hernoemen, verplaatsen en verwijderen met behoud van nummers en submappen.
+Gitaartabs kopiëren en plakken, bekijken als ASCII en vergroten met zoom.
+Capo-alternatieven kiezen met behoud van de klinkende toonsoort.
+PDF-export met alleen songtekst, alleen akkoorden of alleen gitaartabs.
+Het geopende arrangement wordt gebruikt in speelmodus en PDF-export.

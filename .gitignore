@@ -117,3 +117,15 @@ app.*.symbols
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+# Workspace metadata
+.idea/
+*.iml
+!pubspec.lock
+
+# Generated QA and artifact scratch files
+/tmp/
+
+# Private release signing material and local admin tooling
+/.release/
+*.p12
+*.keystore

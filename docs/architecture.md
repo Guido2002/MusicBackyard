@@ -1,0 +1,21 @@
+# Architecture
+
+`lib/app` owns the application router, responsive shell, theme and generated `gen_l10n` resources. `lib/features` contains song domain models, library/editor UI, guitar tools, documents, setlists, performance, settings and isolated updates. `lib/core` owns SQLite persistence, library state, attachment/backup services and shared widgets.
+
+Riverpod owns the library and update controller lifetimes. Controllers notify listening widgets; GoRouter routes into song/setlist/performance/update workspaces. Song editing uses a detached copy, bounded snapshots for undo/redo, a debounced serialized write queue, flush on lifecycle changes and navigation, and visible retry on write failure. Other library operations await persistence before publishing state.
+
+Drift opens native SQLite in the application documents directory on a background isolate. Songs and setlists are aggregate JSON documents inside versioned SQLite tables. Chord anchors, arrangements, lyric lines, tab measures/events and attachments remain structured objects with stable UUIDs. JSON aggregates avoid a generated ORM and a complicated join graph for this initial local-only product. They are not raw PDFs or whitespace-based music storage. Schema v1 contains songs/folders/setlists; v2 adds preferences without replacing existing music. Backups stage attachment copies before a transactional database replacement. Original files remain private copies in the app documents directory.
+
+The current library loads aggregate metadata and content into memory. This keeps the initial implementation small; very large collections will need indexed search columns, pagination and deferred attachment/content loading before a scalability claim can be made. There is no cloud synchronization or mandatory authentication.
+
+Music theory and ChordPro logic are independent of widgets. An edit computes the changed text interval and shifts/clamps affected anchors. Structured anchors render as individual lyric/chord groups in Flutter and PDF layouts. Export loads bundled fonts locally and lays out PDF work on a Dart isolate. Long sections span pages, headings stay with the first line, and each tab measure is an intact block. Word groups reserve enough width for their chord labels.
+
+Updates have no dependency on the library/editor/PDF modules. The explicit state machine separates checking, downloading, validation, permission and system installer handoff. The Android flavor and actual installer source choose the channel. The direct flavor alone declares the installation permission and a FileProvider restricted to one private cache subdirectory. Installer verification runs off the Android UI thread. The system owns the final install result; a handoff is never reported as a completed installation.
+
+Localization source is `lib/app/localization/app_nl.arb`. Run `flutter gen-l10n` after editing it. ChordPro syntax, standard tuning names, musical symbols and external format identifiers intentionally remain literal. User-entered metadata is not translated.
+
+Folder parent validation runs against the persisted graph inside the write transaction, preventing simultaneous moves from introducing cycles. Container removal rehomes child folders and all direct songs (including archive/trash) to the deleted folder's parent in one transaction; no song content is deleted. Failed writes publish no partial in-memory update.
+
+`TabCodec` validates six aligned strings, bar counts and fret/technique bounds before producing structured measures. Clipboard paste appends by default; replacement is an explicit user choice, and mismatching tuning requires replacement. Its own fixed-width exports preserve eight-slot positions, empty measures and techniques on roundtrip. Other aligned ASCII input uses character offsets and splits long bars rather than guessing advanced rhythm.
+
+Capo changes can retain sounding pitch by transposing all arrangement chords by old-capo minus new-capo. The original key remains unchanged. Manual pitch changes are a separate explicit option. PDF content presets select lyrics/chords/tabs independently from visual templates, and editor exports use detached snapshots of the selected arrangement. Performance position keys distinguish alternate arrangements while preserving existing default-arrangement position keys.
