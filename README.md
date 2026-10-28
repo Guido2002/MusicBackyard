@@ -35,6 +35,7 @@ Install production APKs from [GitHub Releases](https://github.com/Guido2002/Musi
 ## Validate
 
 ```sh
+dart run tool/prepare_test_environment.dart
 flutter analyze
 flutter test
 flutter test integration_test/app_flow_test.dart --flavor direct -d emulator-5554
